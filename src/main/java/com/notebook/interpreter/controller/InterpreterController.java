@@ -30,7 +30,7 @@ public class InterpreterController {
         ExecutionRequest request = interpreterRequestParsingService.parseInterpreterRequest(interpreterRequest);
         InterpreterResponse interpreterResponse = new InterpreterResponse();
         interpreterResponse.setResponse("Interpreting " + request.getCode() + " in " + request.getLanguage());
-        InterpreterService interpreterService = interpreterServiceFactory.getInterpreterService(request.getCode());
+        InterpreterService interpreterService = interpreterServiceFactory.getInterpreterService(request.getLanguage());
         return ResponseEntity.ok(interpreterResponse);
     }
 }
