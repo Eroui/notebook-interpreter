@@ -2,8 +2,6 @@ package com.notebook.interpreter.service.impl;
 
 import com.notebook.interpreter.model.ExecutionRequest;
 import com.notebook.interpreter.model.InterpreterRequest;
-import javafx.beans.property.IntegerProperty;
-import jdk.internal.org.objectweb.asm.tree.analysis.Interpreter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
