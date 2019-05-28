@@ -15,7 +15,7 @@ public class InterpreterServiceFactory {
     @Autowired
     public InterpreterServiceFactory(InterpreterService pythonInterpreterService) {
         interpreterServiceMap = new HashMap<>();
-        interpreterServiceMap.put("python", pythonInterpreterService);
+        interpreterServiceMap.put("js", pythonInterpreterService);
     }
 
     public InterpreterService getInterpreterService(String language) throws LanguageNotSupportedException {

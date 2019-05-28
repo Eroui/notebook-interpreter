@@ -1,8 +1,14 @@
 package com.notebook.interpreter.model;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
+@Scope(value="session", proxyMode=ScopedProxyMode.TARGET_CLASS)
 // TODO manage per sessions
 // TODO serialisable for storage?
 public class ExecutionBindings {

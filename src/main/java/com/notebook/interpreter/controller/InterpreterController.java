@@ -9,9 +9,11 @@ import com.notebook.interpreter.validation.CorrectRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpSession;
 
 @RestController
 @Validated
@@ -23,15 +25,18 @@ public class InterpreterController {
     @Autowired
     private InterpreterServiceFactory interpreterServiceFactory;
 
-    @PostMapping("/execute")
-    public ResponseEntity<InterpreterResponse> execute(@CorrectRequest @RequestBody InterpreterRequest interpreterRequest) throws LanguageNotSupportedException {
-        ExecutionRequest request = interpreterRequestParsingService.parseInterpreterRequest(interpreterRequest);
+    // Execuction Binding per Session
+    @Autowired
+    private ExecutionBindings executionBindings;
 
+    @RequestMapping("/execute")
+    public ResponseEntity<InterpreterResponse> execute(@CorrectRequest @RequestBody InterpreterRequest interpreterRequest, HttpSession httpSession) throws LanguageNotSupportedException {
+        ExecutionRequest request = interpreterRequestParsingService.parseInterpreterRequest(interpreterRequest);
         InterpreterService interpreterService = interpreterServiceFactory.getInterpreterService(request.getLanguage());
-        // TODO store execution binding somewhere
-        ExecutionResponse executionResponse = interpreterService.execute(request, new ExecutionBindings());
+        ExecutionResponse executionResponse = interpreterService.execute(request, executionBindings);
         InterpreterResponse interpreterResponse = new InterpreterResponse();
         interpreterResponse.setResponse(executionResponse.getOutput());
+
 
         return ResponseEntity.ok(interpreterResponse);
     }
