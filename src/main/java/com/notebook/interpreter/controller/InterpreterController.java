@@ -25,19 +25,17 @@ public class InterpreterController {
     @Autowired
     private InterpreterServiceFactory interpreterServiceFactory;
 
-    // Execuction Binding per Session
-    @Autowired
-    private ExecutionBindings executionBindings;
-
     @RequestMapping("/execute")
     public ResponseEntity<InterpreterResponse> execute(@CorrectRequest @RequestBody InterpreterRequest interpreterRequest, HttpSession httpSession) throws LanguageNotSupportedException {
         ExecutionRequest request = interpreterRequestParsingService.parseInterpreterRequest(interpreterRequest);
         InterpreterService interpreterService = interpreterServiceFactory.getInterpreterService(request.getLanguage());
-        ExecutionResponse executionResponse = interpreterService.execute(request, executionBindings);
+        String sessionId = interpreterRequest.getSessionId() != null ? interpreterRequest.getSessionId() : httpSession.getId();
+        request.setSessionId(sessionId);
+        ExecutionResponse executionResponse = interpreterService.execute(request);
         InterpreterResponse interpreterResponse = new InterpreterResponse();
         interpreterResponse.setResponse(executionResponse.getOutput());
-
-
+        interpreterResponse.setErrors(executionResponse.getErrors());
+        interpreterResponse.setSessionId(sessionId);
         return ResponseEntity.ok(interpreterResponse);
     }
 }
