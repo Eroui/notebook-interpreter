@@ -2,13 +2,18 @@ package com.notebook.interpreter.service;
 
 import com.notebook.interpreter.model.ExecutionRequest;
 import com.notebook.interpreter.model.ExecutionResponse;
+import com.notebook.interpreter.model.exception.InterpreterException;
 import com.notebook.interpreter.model.exception.LanguageNotSupportedException;
+import com.notebook.interpreter.model.exception.TimeOutException;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class GraalVmInterpreterService implements InterpreterService {
@@ -16,7 +21,12 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
     private Map<String, Context> sessionsBindings = new ConcurrentHashMap<>();
 
     @Override
-    public ExecutionResponse execute(ExecutionRequest request) throws LanguageNotSupportedException {
+    public ExecutionResponse execute(ExecutionRequest request) throws InterpreterException {
+
+        // Check if language supported
+        if (!Context.create().getEngine().getLanguages().containsKey(getInterpreterLanguage())) {
+            throw new LanguageNotSupportedException();
+        }
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ByteArrayOutputStream errStream = new ByteArrayOutputStream()){
             Context context = Context.newBuilder(getInterpreterLanguage()).out(outputStream).err(errStream).build();
@@ -30,6 +40,14 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
                 );
             }
 
+            Timer timer = new Timer(true);
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    context.close(true);
+                }
+            }, 5000);
+
             context.eval(getInterpreterLanguage(), request.getCode());
 
             if (previousContext != null) {
@@ -40,10 +58,16 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
 
             return new ExecutionResponse(outputStream.toString(), errStream.toString());
         } catch(PolyglotException e) {
+            if (e.isCancelled()) {
+                throw new TimeOutException();
+            }
+
+
+            // TODO add polyglot exceptions handling ?
             return new ExecutionResponse(null , e.getMessage());
-        }catch (Exception e) {
-            // TODO replace PolyglotIllegalArgumentException
-            throw new LanguageNotSupportedException();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ExecutionResponse(null, e.getMessage());
         }
 
     }

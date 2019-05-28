@@ -1,6 +1,7 @@
 package com.notebook.interpreter.controller;
 
 import com.notebook.interpreter.model.*;
+import com.notebook.interpreter.model.exception.InterpreterException;
 import com.notebook.interpreter.model.exception.LanguageNotSupportedException;
 import com.notebook.interpreter.service.InterpreterRequestParsingService;
 import com.notebook.interpreter.service.InterpreterService;
@@ -26,7 +27,7 @@ public class InterpreterController {
     private InterpreterServiceFactory interpreterServiceFactory;
 
     @RequestMapping("/execute")
-    public ResponseEntity<InterpreterResponse> execute(@CorrectRequest @RequestBody InterpreterRequest interpreterRequest, HttpSession httpSession) throws LanguageNotSupportedException {
+    public ResponseEntity<InterpreterResponse> execute(@CorrectRequest @RequestBody InterpreterRequest interpreterRequest, HttpSession httpSession) throws InterpreterException {
         ExecutionRequest request = interpreterRequestParsingService.parseInterpreterRequest(interpreterRequest);
         InterpreterService interpreterService = interpreterServiceFactory.getInterpreterService(request.getLanguage());
         String sessionId = interpreterRequest.getSessionId() != null ? interpreterRequest.getSessionId() : httpSession.getId();
