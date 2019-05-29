@@ -1,5 +1,6 @@
 package com.notebook.interpreter.service;
 
+import com.notebook.interpreter.model.Interpreter;
 import com.notebook.interpreter.model.exception.LanguageNotSupportedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,10 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Factory for all Interpreter Services
+ *
+ * @author <a href="mailto:abdelaziz.eroui@gmail.com">Abdelaziz EROUI</a>
+ */
 @Service
 public class InterpreterServiceFactory {
 
-    private Map<String, InterpreterService> interpreterServiceMap = new ConcurrentHashMap<>();
+    private Map<Interpreter, InterpreterService> interpreterServiceMap = new ConcurrentHashMap<>();
 
     @Autowired
     public InterpreterServiceFactory(List<InterpreterService> interpreterServices) {
@@ -20,11 +26,17 @@ public class InterpreterServiceFactory {
         }
     }
 
+    /**
+     * get Interpreter Service from language
+     * @param language
+     * @return
+     * @throws LanguageNotSupportedException in case no interpreter service mapped to the given language
+     */
     public InterpreterService getInterpreterService(String language) throws LanguageNotSupportedException {
-        if (!interpreterServiceMap.containsKey(language)) {
+        Interpreter interpreter = Interpreter.getInterpreterFromLanguageName(language);
+        if (interpreter == null || !interpreterServiceMap.containsKey(interpreter)) {
             throw new LanguageNotSupportedException();
         }
-
-        return interpreterServiceMap.get(language);
+        return interpreterServiceMap.get(interpreter);
     }
 }

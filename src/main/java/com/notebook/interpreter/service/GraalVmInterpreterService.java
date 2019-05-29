@@ -24,17 +24,17 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
     public ExecutionResponse execute(ExecutionRequest request) throws InterpreterException {
 
         // Check if language supported
-        if (!Context.create().getEngine().getLanguages().containsKey(getInterpreterLanguage())) {
+        if (!Context.create().getEngine().getLanguages().containsKey(getInterpreterLanguage().getName())) {
             throw new LanguageNotSupportedException();
         }
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ByteArrayOutputStream errStream = new ByteArrayOutputStream()){
-            Context context = Context.newBuilder(getInterpreterLanguage()).out(outputStream).err(errStream).build();
-            Value currentContextBinding = context.getBindings(getInterpreterLanguage());
+            Context context = Context.newBuilder(getInterpreterLanguage().getName()).out(outputStream).err(errStream).build();
+            Value currentContextBinding = context.getBindings(getInterpreterLanguage().getName());
             Context previousContext = getContext(request.getSessionId());
 
             if (previousContext != null) {
-                Value previousBindings = previousContext.getBindings(getInterpreterLanguage());
+                Value previousBindings = previousContext.getBindings(getInterpreterLanguage().getName());
                 previousBindings.getMemberKeys().forEach(
                         key -> currentContextBinding.putMember(key, previousBindings.getMember(key))
                 );
@@ -48,7 +48,7 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
                 }
             }, 5000);
 
-            context.eval(getInterpreterLanguage(), request.getCode());
+            context.eval(getInterpreterLanguage().getName(), request.getCode());
 
             if (previousContext != null) {
                 previousContext.close(); // closing previous context for replacement
@@ -61,7 +61,6 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
             if (e.isCancelled()) {
                 throw new TimeOutException();
             }
-
 
             // TODO add polyglot exceptions handling ?
             return new ExecutionResponse(null , e.getMessage());
