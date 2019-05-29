@@ -2,6 +2,7 @@ package com.notebook.interpreter.service.impl;
 
 import com.notebook.interpreter.model.ExecutionRequest;
 import com.notebook.interpreter.model.InterpreterRequest;
+import com.notebook.interpreter.model.exception.InvalidInterpreterRequestException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -13,14 +14,14 @@ public class InterpreterRequestParsingServiceImplTest {
     private InterpreterRequestParsingServiceImpl interpreterRequestParsingService;
 
     @Before
-    public void setUp() {
+    public void setUp() throws InvalidInterpreterRequestException {
         interpreterRequestParsingService = Mockito.mock(InterpreterRequestParsingServiceImpl.class);
         Mockito.when(interpreterRequestParsingService.parseInterpreterRequest(Mockito.any(InterpreterRequest.class)))
                 .thenCallRealMethod();
     }
 
     @Test
-    public void parseInterpreterRequest() {
+    public void parseInterpreterRequest() throws InvalidInterpreterRequestException {
         InterpreterRequest request = new InterpreterRequest();
         request.setCode("%js console.log('Hello World');");
         ExecutionRequest executionRequest = interpreterRequestParsingService.parseInterpreterRequest(request);
@@ -28,8 +29,8 @@ public class InterpreterRequestParsingServiceImplTest {
         assertEquals("console.log('Hello World');", executionRequest.getCode());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void parseInvalidInterpreterRequest() {
+    @Test(expected = InvalidInterpreterRequestException.class)
+    public void parseInvalidInterpreterRequest() throws InvalidInterpreterRequestException {
         InterpreterRequest request = new InterpreterRequest();
         request.setCode(" %js console.log('Hello World');");
         interpreterRequestParsingService.parseInterpreterRequest(request);

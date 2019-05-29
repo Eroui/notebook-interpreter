@@ -2,6 +2,7 @@ package com.notebook.interpreter.service.impl;
 
 import com.notebook.interpreter.model.ExecutionRequest;
 import com.notebook.interpreter.model.InterpreterRequest;
+import com.notebook.interpreter.model.exception.InvalidInterpreterRequestException;
 import com.notebook.interpreter.service.InterpreterRequestParsingService;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class InterpreterRequestParsingServiceImpl implements InterpreterRequestP
      * {@inheritDoc}
      */
     @Override
-    public ExecutionRequest parseInterpreterRequest(InterpreterRequest request) {
+    public ExecutionRequest parseInterpreterRequest(InterpreterRequest request) throws InvalidInterpreterRequestException {
         Matcher matcher = pattern.matcher(request.getCode());
         if (matcher.matches()) {
             String language = matcher.group(1);
@@ -32,7 +33,6 @@ public class InterpreterRequestParsingServiceImpl implements InterpreterRequestP
             return executionRequest;
         }
 
-        // TODO construct proper exception
-        throw new IllegalArgumentException();
+        throw new InvalidInterpreterRequestException();
     }
 }
