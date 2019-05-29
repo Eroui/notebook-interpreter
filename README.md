@@ -1,8 +1,18 @@
 # notbook-interpreter
 - Java / Spring Boot Notebook Server that can execute pieces of codes.
 - Currently Supported languages :
-    - JavaScript
-    - Python
+    - [x] JavaScript
+    - [x] Python
+    
+1. [Installation](#installation)
+    - [Maven Installation](#maven-installation)
+        - [Maven](#maven)
+        - [GraalVM](#graalvm)
+        - [Build and Run project](#build-and-run-project)
+    - [Docker Installation](#docker-installation)
+        - [Docker](#docker)
+        - [Build and Run Project](#build-and-run-project-1)
+        
     
 # Installation 
 
@@ -16,7 +26,7 @@ $ git clone https://github.com/Eroui/notbook-interpreter.git
 
 ### Maven 
 
-First Step will be to install latest version of [MAVEN](https://maven.apache.org/).
+First Step will be to install latest version of [Maven](https://maven.apache.org/).
 
 ### GraalVM 
 GraalVM must be installed in order to be able to build the project. 
@@ -33,7 +43,7 @@ You also need to make sure that python for GraalVM is install. You can use the G
 $ gu install python
 ```
 
-### Build and run project 
+### Build and Run project 
 
 Once every thing is installed, run a maven clean install package or maven package in the project so the jar file can be generated. (You can skip Tests).
 
@@ -53,7 +63,7 @@ Then You can run the project using the java -jar command.
 $ java -jar target/interpreter-0.0.1-SNAPSHOT.jar
 ```
 
-If all is oka, you should be able to interact with the server in:
+If all is okay, you should be able to interact with the server in:
 ```
 http://localhost:8080/
 ```
@@ -65,7 +75,7 @@ You also setup un run the server inside a Docker Container.
 ### Docker 
 Firt make sure docker in installed. You can follow [Docker documentation](https://docs.docker.com/install/).
 
-### Build and run project
+### Build and Run project
 
 You might need to build the project first using Maven.
 
