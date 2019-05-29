@@ -2,7 +2,6 @@ package com.notebook.interpreter.controller;
 
 import com.notebook.interpreter.model.*;
 import com.notebook.interpreter.model.exception.InterpreterException;
-import com.notebook.interpreter.model.exception.LanguageNotSupportedException;
 import com.notebook.interpreter.service.InterpreterRequestParsingService;
 import com.notebook.interpreter.service.InterpreterService;
 import com.notebook.interpreter.service.InterpreterServiceFactory;
