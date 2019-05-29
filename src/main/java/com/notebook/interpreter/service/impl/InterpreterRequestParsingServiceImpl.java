@@ -15,6 +15,9 @@ public class InterpreterRequestParsingServiceImpl implements InterpreterRequestP
     private static final String REQUEST_PATTERN = "%(\\w+)\\s+(.*)";
     private static final Pattern pattern = Pattern.compile(REQUEST_PATTERN);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ExecutionRequest parseInterpreterRequest(InterpreterRequest request) {
         Matcher matcher = pattern.matcher(request.getCode());

@@ -20,6 +20,9 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
 
     private Map<String, Context> sessionsBindings = new ConcurrentHashMap<>();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ExecutionResponse execute(ExecutionRequest request) throws InterpreterException {
 
@@ -71,6 +74,11 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
 
     }
 
+    /**
+     * Get Context by sessionId
+     * @param sessionId
+     * @return
+     */
     private Context getContext(String sessionId) {
         if (sessionId == null)
             return null;
@@ -78,6 +86,12 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
         return sessionsBindings.get(sessionId);
     }
 
+    /**
+     * Update (Or Put) context for sessionId for future use
+     *
+     * @param sessionId
+     * @param context
+     */
     private void putContext(String sessionId, Context context) {
         if (sessionId != null) sessionsBindings.put(sessionId, context);
     }

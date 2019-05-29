@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class JSInterpreterServiceImpl extends GraalVmInterpreterService {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Interpreter getInterpreterLanguage() {
         return Interpreter.JAVA_SCRIPT;

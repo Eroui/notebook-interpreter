@@ -7,12 +7,12 @@ import javax.validation.ConstraintValidatorContext;
 
 public class InterpreterRequestValidator implements ConstraintValidator<CorrectRequest, InterpreterRequest> {
 
-    private static final String REQUEST_PATTERN = "(%\\w+)\\s+(.*)";
+    private static final String REQUEST_PATTERN = "%(\\w+)\\s+(.*)";
 
     @Override
     public boolean isValid(InterpreterRequest request, ConstraintValidatorContext context) {
         if (request == null) return true;
-        if (request.getCode() == null || request.getCode() == null) {
+        if (request.getCode() == null || request.getCode().isEmpty()) {
             context.buildConstraintViolationWithTemplate("Request code is required")
                     .addPropertyNode("code")
                     .addConstraintViolation();
@@ -30,7 +30,7 @@ public class InterpreterRequestValidator implements ConstraintValidator<CorrectR
         return true;
     }
 
-    public boolean matchesRequestPatternTest(String code) {
+    boolean matchesRequestPatternTest(String code) {
         if (code == null) return false;
         return code.matches(REQUEST_PATTERN);
     }
