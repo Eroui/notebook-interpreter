@@ -110,6 +110,12 @@ Replace <your-docker-ip-address> by your own docker ip address.
 
 ## API Usage
 
+The API contain a swagger instance running:
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
 ### Api End-Point
 The Interpreter API is available via http POST method at:
 ```

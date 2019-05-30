@@ -9,6 +9,7 @@ import com.notebook.interpreter.validation.CorrectRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +26,7 @@ public class InterpreterController {
     @Autowired
     private InterpreterServiceFactory interpreterServiceFactory;
 
-    @RequestMapping("/execute")
+    @PostMapping("/execute")
     public ResponseEntity<InterpreterResponse> execute(@CorrectRequest @RequestBody InterpreterRequest interpreterRequest, HttpSession httpSession) throws InterpreterException {
         ExecutionRequest request = interpreterRequestParsingService.parseInterpreterRequest(interpreterRequest);
         InterpreterService interpreterService = interpreterServiceFactory.getInterpreterService(request.getLanguage());
