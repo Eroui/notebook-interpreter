@@ -62,7 +62,7 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
             }
 
             // TODO add polyglot exceptions handling ?
-            return new ExecutionResponse(null , e.getMessage());
+            return new ExecutionResponse("" , e.getMessage());
         }
 
     }
