@@ -1,5 +1,6 @@
 package com.notebook.interpreter.service;
 
+import com.notebook.interpreter.configuration.ApplicationProperties;
 import com.notebook.interpreter.model.ExecutionContext;
 import com.notebook.interpreter.model.ExecutionRequest;
 import com.notebook.interpreter.model.ExecutionResponse;
@@ -7,6 +8,7 @@ import com.notebook.interpreter.model.exception.LanguageNotSupportedException;
 import com.notebook.interpreter.model.exception.TimeOutException;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +18,9 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class GraalVmInterpreterService implements InterpreterService {
+
+    @Autowired
+    private ApplicationProperties applicationProperties;
 
     private Map<String, ExecutionContext> sessionContexts = new ConcurrentHashMap<>();
     /**
@@ -45,7 +50,7 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
                     e.printStackTrace();
                 }
             }
-        }, 5000);
+        }, applicationProperties.getTimeOutDuration());
 
         try {
             context.eval(getInterpreterLanguage().getName(), request.getCode());

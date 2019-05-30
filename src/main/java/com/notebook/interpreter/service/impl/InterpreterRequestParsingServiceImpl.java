@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 @Service
 public class InterpreterRequestParsingServiceImpl implements InterpreterRequestParsingService {
 
-    // TODO extract somewhere else (duplicate) [property?]
     private static final String REQUEST_PATTERN = "%(\\w+)\\s+(.*)";
     private static final Pattern pattern = Pattern.compile(REQUEST_PATTERN);
 
@@ -20,7 +19,7 @@ public class InterpreterRequestParsingServiceImpl implements InterpreterRequestP
      * {@inheritDoc}
      */
     @Override
-    public ExecutionRequest parseInterpreterRequest(InterpreterRequest request) throws InvalidInterpreterRequestException {
+    public ExecutionRequest parseInterpreterRequest(InterpreterRequest request) {
         Matcher matcher = pattern.matcher(request.getCode());
         if (matcher.matches()) {
             String language = matcher.group(1);
