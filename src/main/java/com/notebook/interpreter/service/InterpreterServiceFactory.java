@@ -5,9 +5,9 @@ import com.notebook.interpreter.model.exception.LanguageNotSupportedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Factory for all Interpreter Services
@@ -17,7 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class InterpreterServiceFactory {
 
-    private Map<Interpreter, InterpreterService> interpreterServiceMap = new ConcurrentHashMap<>();
+    // TODO use enum map
+    private Map<Interpreter, InterpreterService> interpreterServiceMap = new EnumMap<>(Interpreter.class);
 
     @Autowired
     public InterpreterServiceFactory(List<InterpreterService> interpreterServices) {
@@ -32,7 +33,7 @@ public class InterpreterServiceFactory {
      * @return
      * @throws LanguageNotSupportedException in case no interpreter service mapped to the given language
      */
-    public InterpreterService getInterpreterService(String language) throws LanguageNotSupportedException {
+    public InterpreterService getInterpreterService(String language) {
         Interpreter interpreter = Interpreter.getInterpreterFromLanguageName(language);
         if (interpreter == null || !interpreterServiceMap.containsKey(interpreter)) {
             throw new LanguageNotSupportedException();

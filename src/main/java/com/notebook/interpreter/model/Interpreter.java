@@ -15,7 +15,7 @@ public enum Interpreter {
 
 	public static Interpreter getInterpreterFromLanguageName(String language) {
 		for (Interpreter interpreter : Interpreter.values()) {
-			if (interpreter.name.equals(language.toLowerCase().trim())) {
+			if (interpreter.name.equalsIgnoreCase(language)) {
 				return interpreter;
 			}
 		}

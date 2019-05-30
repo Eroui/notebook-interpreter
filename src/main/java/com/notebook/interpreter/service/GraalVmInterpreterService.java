@@ -3,7 +3,6 @@ package com.notebook.interpreter.service;
 import com.notebook.interpreter.model.ExecutionContext;
 import com.notebook.interpreter.model.ExecutionRequest;
 import com.notebook.interpreter.model.ExecutionResponse;
-import com.notebook.interpreter.model.exception.InterpreterException;
 import com.notebook.interpreter.model.exception.LanguageNotSupportedException;
 import com.notebook.interpreter.model.exception.TimeOutException;
 import org.graalvm.polyglot.Context;
@@ -18,65 +17,60 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class GraalVmInterpreterService implements InterpreterService {
 
-    private Map<String, ExecutionContext> sessionsBindings = new ConcurrentHashMap<>();
-
+    private Map<String, ExecutionContext> sessionContexts = new ConcurrentHashMap<>();
     /**
      * {@inheritDoc}
      */
     @Override
-    public ExecutionResponse execute(ExecutionRequest request) throws InterpreterException {
+    public ExecutionResponse execute(ExecutionRequest request) {
 
         // Check if language supported
-        if (!Context.create().getEngine().getLanguages().containsKey(getInterpreterLanguage().getName())) {
+        if (unsupportedLanguage()) {
             throw new LanguageNotSupportedException();
         }
 
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ByteArrayOutputStream errStream = new ByteArrayOutputStream()){
-            Context context = Context.newBuilder(getInterpreterLanguage().getName()).out(outputStream).err(errStream)
-                    .build();
+        ExecutionContext executionContext = getContext(request.getSessionId());
+        final Context context = executionContext.getContext();
 
-            ExecutionContext executionContext = getContext(request.getSessionId());
-            if (executionContext != null && executionContext.getPreviousExecutions() != null) {
-                for (String previousExecution : executionContext.getPreviousExecutions()) {
-                    context.eval(getInterpreterLanguage().getName(), previousExecution);
+        Timer timer = new Timer(true);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    context.close(true);
+                    executionContext.getOutputStream().close();
+                    executionContext.getErrorsStream().close();
+                    executionContext.setTimedOut(true);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
+        }, 5000);
 
-            // Clear output and error stream from previous executions
-            outputStream.reset();
-            errStream.reset();
-
-            Timer timer = new Timer(true);
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    context.close(true);
-                }
-            }, 5000);
-
+        try {
             context.eval(getInterpreterLanguage().getName(), request.getCode());
             timer.cancel();
-
-            if (executionContext != null) {
-                executionContext.addExecution(request.getCode());
-            }
-
-            return new ExecutionResponse(outputStream.toString(), errStream.toString());
+            timer.purge();
+            return new ExecutionResponse(executionContext.getOutput(), executionContext.getErrors());
         } catch(PolyglotException e) {
+            timer.cancel();
+            timer.purge();
             if (e.isCancelled()) {
+                // remove context
+                sessionContexts.remove(request.getSessionId());
                 throw new TimeOutException();
             }
 
             // TODO add polyglot exceptions handling ?
             return new ExecutionResponse(null , e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ExecutionResponse(null, e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
 
+    }
+
+    private boolean unsupportedLanguage() {
+        try (Context tmpContext = Context.create()) {
+            return !tmpContext.getEngine().getLanguages().containsKey(getInterpreterLanguage().getName());
+        }
     }
 
     /**
@@ -85,9 +79,15 @@ public abstract class GraalVmInterpreterService implements InterpreterService {
      * @return
      */
     private ExecutionContext getContext(String sessionId) {
-        if (sessionId == null)
-            return new ExecutionContext();
+        return sessionContexts.computeIfAbsent(sessionId, key -> buildContext());
+    }
 
-        return sessionsBindings.computeIfAbsent(sessionId, key -> new ExecutionContext());
+    private ExecutionContext buildContext() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream errorsStream = new ByteArrayOutputStream();
+        Context context = Context.newBuilder(getInterpreterLanguage().getName()).out(outputStream).err(errorsStream)
+                .build();
+
+        return new ExecutionContext(outputStream, errorsStream, context);
     }
 }
